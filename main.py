@@ -43,6 +43,7 @@ def create_packages(packages: List[schemas.Packages]):
                 recipient =package.recipient,
                 sender=package.sender,
                 trackingReference=package.trackingReference,
+                shippingMethod=package.shippingMethod,
                 item=package.item,
                 status=package.status,
                 dateSent=package.dateSent,
@@ -62,7 +63,7 @@ def create_packages(packages: List[schemas.Packages]):
         )
 
 @app.put("/packages/{packageID}")
-def update_package(packageID: str, recipient: str, sender: str, trackingReference: str, item: str, dateSent: str, status: str, note: str):
+def update_package(packageID: str, recipient: str, sender: str, trackingReference: str, item: str, shippingMethod: str, dateSent: str, status: str, note: str):
     # create a new database session
     session = Session(bind=engine, expire_on_commit=False)
 
@@ -77,6 +78,7 @@ def update_package(packageID: str, recipient: str, sender: str, trackingReferenc
         package.trackingReference = trackingReference
         package.item = item
         package.dateSent = dateSent
+        package.shippingMethod = shippingMethod
         package.status = status
         package.note = note
         session.commit()

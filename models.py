@@ -8,6 +8,7 @@ class Packages(Base):
     sender = Column(String)
     trackingReference = Column(String)
     item = Column(String)
+    shippingMethod = Column(String)
     dateSent = Column(String)
     status = Column(String)
     note = Column(String)
