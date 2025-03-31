@@ -8,7 +8,7 @@ export default function Packages() {
     <>
       <List>
         <Datagrid rowClick="edit">
-          <TextField source="packageID" label="PackageID" />
+          <TextField source="id" label="ID" />
           <TextField source="recipient" label="Recipient" />
           <TextField source="sender" label="Sender" />
           <TextField source="trackingReference" label="Tracking Reference" />
