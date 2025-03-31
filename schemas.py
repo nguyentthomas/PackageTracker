@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 class Packages(BaseModel):
-    packageID: str
+    id: str
     recipient: str
     sender: str
     trackingReference: str

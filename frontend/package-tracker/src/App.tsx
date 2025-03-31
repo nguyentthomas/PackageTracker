@@ -1,6 +1,6 @@
 import './App.css'
 import React from 'react';
-import { Admin, Resource, List, Datagrid, TextField } from "react-admin";
+import { Admin, Resource} from "react-admin";
 import dataProvider from "./dataProvider";
 import Packages from "/components/Packages";
 

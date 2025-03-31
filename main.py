@@ -14,12 +14,12 @@ app.add_middleware(CorrelationIdMiddleware)
 origins = [
     "https://localhost:5173",
     "http://localhost",
-    "http://localhost:8080",
+    "http://localhost:8000",
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,19 +34,19 @@ async def root():
     return {"message": "Package Tracker"}
 
 #PACKAGES
-@app.get("/packages/")
+@app.get("/packages")
 def read_package_list():
     session = Session(bind=engine, expire_on_commit=False)
     package_list = session.query(models.Packages).all()
     session.close()
     return package_list
 
-@app.get("/packages/{packageID}")
-def read_package(packageID: int):
+@app.get("/packages/{id}")
+def read_package(id: str):
     session = Session(bind=engine, expire_on_commit=False)
-    package = session.query(models.Packages).get(packageID)
+    package = session.query(models.Packages).get(id)
     session.close()
-    return f"Package object with PackageID: {package.packageID}"
+    return f"Package object with id: {package.id}"
 
 @app.post("/packages", status_code=status.HTTP_201_CREATED)  # previous called test
 def create_packages(packages: List[schemas.Packages]):
@@ -55,7 +55,7 @@ def create_packages(packages: List[schemas.Packages]):
 
         for package in packages:
             package_db = models.Packages(
-                packageID=package.packageID,
+                id=package.id,
                 recipient =package.recipient,
                 sender=package.sender,
                 trackingReference=package.trackingReference,
@@ -69,27 +69,27 @@ def create_packages(packages: List[schemas.Packages]):
             session.add(package_db)
 
         session.commit()
-        batchPackageID = [package_db.packageID for package_db in packages]
+        batchid = [package_db.id for package_db in packages]
         session.close()
 
-        return {"message": f"Created Package items with packageID {batchPackageID}"}
+        return {"message": f"Created Package items with id {batchid}"}
 
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Error creating Package items: {str(e)}"
         )
 
-@app.put("/packages/{packageID}")
-def update_package(packageID: str, recipient: str, sender: str, trackingReference: str, deliveryType:str, item: str, shippingMethod: str, dateSent: str, status: str, note: str):
+@app.put("/packages/{id}")
+def update_package(id: str, recipient: str, sender: str, trackingReference: str, deliveryType:str, item: str, shippingMethod: str, dateSent: str, status: str, note: str):
     # create a new database session
     session = Session(bind=engine, expire_on_commit=False)
 
-    # Get Package from PackageID
-    package = session.query(models.Packages).get(packageID)
+    # Get Package from id
+    package = session.query(models.Packages).get(id)
 
     # Update each variable
     if package:
-        package.packageID = packageID
+        package.id = id
         package.recipient = recipient
         package.sender = sender
         package.trackingReference = trackingReference
@@ -106,27 +106,27 @@ def update_package(packageID: str, recipient: str, sender: str, trackingReferenc
 
     if not package:
         raise HTTPException(
-            status_code=404, detail=f"Package item with PackageID '{packageID}' not found"
+            status_code=404, detail=f"Package item with id '{id}' not found"
         )
 
     return package
 
-@app.delete("/packages/{packageID}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_package(packageID: str):
+@app.delete("/packages/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_package(id: str):
     # create a new database session
     session = Session(bind=engine, expire_on_commit=False)
 
-    # Get Package from PackageID
-    package = session.query(models.Packages).get(packageID)
+    # Get Package from id
+    package = session.query(models.Packages).get(id)
 
-    # if Package with given PackageID exists, delete it from the database. Otherwise raise 404 error
+    # if Package with given id exists, delete it from the database. Otherwise raise 404 error
     if package:
         session.delete(package)
         session.commit()
         session.close()
     else:
         raise HTTPException(
-            status_code=404, detail=f"Package item with PackageID '{packageID}' not found"
+            status_code=404, detail=f"Package item with id '{id}' not found"
         )
 
     return None
