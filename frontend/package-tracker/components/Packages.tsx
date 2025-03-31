@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { List, Datagrid, TextField } from "react-admin";
+import { List, Datagrid, TextField, EditButton, DeleteButton } from "react-admin";
 import React from "react";
 
 export default function Packages() {
@@ -18,6 +18,8 @@ export default function Packages() {
           <TextField source="dateSent" label="Date Sent" />
           <TextField source="status" label="Status" />
           <TextField source="note" label="Note" />
+          <EditButton/>
+          <DeleteButton/>
         </Datagrid>
 
       </List>
