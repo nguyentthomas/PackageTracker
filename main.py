@@ -6,9 +6,25 @@ import schemas
 import models
 
 from asgi_correlation_id import CorrelationIdMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 app.add_middleware(CorrelationIdMiddleware)
+
+origins = [
+    "https://localhost:5173",
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Create the database
 Base.metadata.create_all(engine)
@@ -44,6 +60,7 @@ def create_packages(packages: List[schemas.Packages]):
                 sender=package.sender,
                 trackingReference=package.trackingReference,
                 shippingMethod=package.shippingMethod,
+                deliveryType=package.deliveryType,
                 item=package.item,
                 status=package.status,
                 dateSent=package.dateSent,
@@ -63,7 +80,7 @@ def create_packages(packages: List[schemas.Packages]):
         )
 
 @app.put("/packages/{packageID}")
-def update_package(packageID: str, recipient: str, sender: str, trackingReference: str, item: str, shippingMethod: str, dateSent: str, status: str, note: str):
+def update_package(packageID: str, recipient: str, sender: str, trackingReference: str, deliveryType:str, item: str, shippingMethod: str, dateSent: str, status: str, note: str):
     # create a new database session
     session = Session(bind=engine, expire_on_commit=False)
 
@@ -78,6 +95,7 @@ def update_package(packageID: str, recipient: str, sender: str, trackingReferenc
         package.trackingReference = trackingReference
         package.item = item
         package.dateSent = dateSent
+        package.deliveryType = deliveryType
         package.shippingMethod = shippingMethod
         package.status = status
         package.note = note

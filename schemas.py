@@ -5,6 +5,7 @@ class Packages(BaseModel):
     recipient: str
     sender: str
     trackingReference: str
+    deliveryType:str
     item: str
     shippingMethod: str
     dateSent: str
