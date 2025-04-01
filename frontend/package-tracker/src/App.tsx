@@ -10,7 +10,6 @@ function App() {
     <>
     <Admin dataProvider={dataProvider} >
     <Resource name="packages" list={Packages} />
-    <h1>Package Tracker</h1>
     </Admin>
     </>
   )

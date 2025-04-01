@@ -1,4 +1,4 @@
-import { fetchUtils, DataProvider, GetListParams } from "react-admin";
+import { fetchUtils, DataProvider, GetListParams, GetManyParams } from "react-admin";
 
 const apiUrl = "http://localhost:8000";
 const httpClient = fetchUtils.fetchJson;

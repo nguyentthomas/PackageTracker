@@ -1,14 +1,12 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { List, Datagrid, TextField, EditButton, DeleteButton, Pagination } from "react-admin";
+import { List, Datagrid, TextField, EditButton, DeleteButton, Pagination} from "react-admin";
 import React from "react";
-
-const PostPagination = () => <Pagination rowsPerPageOptions={[10, 25, 50, 100]} />;
 
 export default function Packages() {
 
   return (
     <>
-      <List pagination={<PostPagination/>}>
+      <List>
         <Datagrid rowClick="edit">
           <TextField source="id" label="ID" />
           <TextField source="recipient" label="Recipient" />
