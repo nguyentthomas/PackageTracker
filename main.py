@@ -4,9 +4,22 @@ from sqlalchemy.orm import Session
 from typing import List
 import schemas
 import models
+from typing import Annotated
+from fastapi import Depends, FastAPI, HTTPException, Query
+from sqlmodel import Field, Session, SQLModel, create_engine, select
 
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi.middleware.cors import CORSMiddleware
+
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session
+
+SessionDep = Annotated[Session, Depends(get_session)]
 
 app = FastAPI()
 app.add_middleware(CorrelationIdMiddleware)
@@ -35,9 +48,8 @@ async def root():
 
 #PACKAGES
 @app.get("/packages")
-def read_package_list():
-    session = Session(bind=engine, expire_on_commit=False)
-    package_list = session.query(models.Packages).all()
+def read_package_list(session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)]=10,)-> List[schemas.Packages]:
+    package_list = session.exec(select(models.Packages).offset(offset).limit(limit)).all()
     session.close()
     return package_list
 
