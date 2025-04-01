@@ -6,8 +6,8 @@ const httpClient = fetchUtils.fetchJson;
 const dataProvider: DataProvider = {
   getList: async (resource, params) => {
     const { page, perPage } = params.pagination;
-    const url = `${apiUrl}/${resource}?page=${page}&perPage=${perPage}`;
-
+    const filters = params.filter ? `&filter=${encodeURIComponent(JSON.stringify(params.filter))}` : "";
+    const url = `${apiUrl}/${resource}?page=${page}&perPage=${perPage}${filters}`;
     const { json } = await httpClient(url);
 
     return {

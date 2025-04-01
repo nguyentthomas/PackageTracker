@@ -1,4 +1,4 @@
-from fastapi import FastAPI, status, HTTPException, Query, Depends
+from fastapi import FastAPI, status, HTTPException, Query, Depends, Body
 from database import engine, SessionLocal, Base
 from sqlalchemy.orm import Session
 from typing import List
@@ -46,8 +46,13 @@ async def root():
 def read_package_list(
     page: int = Query(1, alias="page"), 
     per_page: int = Query(10, alias="perPage"), 
+    filters: dict = Body({}, embed=True),
     db: Session = Depends(get_db)
 ):
+    if filters:
+        for key, value in filters.items():
+            query = query.filter(getattr(models.Packages, key).ilike(f"%{value}%"))  # Case-insensitive search
+
     total = db.query(models.Packages).count()  # Get total count
     start = (page - 1) * per_page  # Offset calculation
 

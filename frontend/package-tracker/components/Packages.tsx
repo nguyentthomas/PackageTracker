@@ -1,12 +1,16 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { List, Datagrid, TextField, EditButton, DeleteButton, Pagination} from "react-admin";
+import { List, Datagrid, TextField, EditButton, DeleteButton, SearchInput} from "react-admin";
 import React from "react";
+
+const filters = [
+  <SearchInput source="id" alwaysOn />,
+];
 
 export default function Packages() {
 
   return (
     <>
-      <List>
+      <List filters={filters}>
         <Datagrid rowClick="edit">
           <TextField source="id" label="ID" />
           <TextField source="recipient" label="Recipient" />
