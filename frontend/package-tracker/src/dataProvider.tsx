@@ -4,12 +4,18 @@ const apiUrl = "http://localhost:8000";
 const httpClient = fetchUtils.fetchJson;
 
 const dataProvider: DataProvider = {
-  getList: async (resource, params: GetListParams) => {
-    const url = `${apiUrl}/${resource}`;
-    const { json } = await httpClient(url);
-    return { data: json, total: json.length };
-  },
+  getList: async (resource, params) => {
+    const { page, perPage } = params.pagination;
+    const url = `${apiUrl}/${resource}?page=${page}&perPage=${perPage}`;
 
+    const { json } = await httpClient(url);
+
+    return {
+      data: json.data,
+      total: json.total,
+    }
+  },
+  
   getOne: async (resource, params) => {
     const url = `${apiUrl}/${resource}/${params.id}`;
     const { json } = await httpClient(url);

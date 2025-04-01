@@ -1,5 +1,5 @@
-from fastapi import FastAPI, status, HTTPException
-from database import Base, engine
+from fastapi import FastAPI, status, HTTPException, Query, Depends
+from database import engine, SessionLocal, Base
 from sqlalchemy.orm import Session
 from typing import List
 import schemas
@@ -25,6 +25,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Dependency to get database session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 
 # Create the database
 Base.metadata.create_all(engine)
@@ -35,11 +43,26 @@ async def root():
 
 #PACKAGES
 @app.get("/packages")
-def read_package_list():
-    session = Session(bind=engine, expire_on_commit=False)
-    package_list = session.query(models.Packages).all()
-    session.close()
-    return package_list
+def read_package_list(
+    page: int = Query(1, alias="page"), 
+    per_page: int = Query(10, alias="perPage"), 
+    db: Session = Depends(get_db)
+):
+    total = db.query(models.Packages).count()  # Get total count
+    start = (page - 1) * per_page  # Offset calculation
+
+    package_list = (
+        db.query(models.Packages)
+        .offset(start)
+        .limit(per_page)
+        .all()
+    )
+
+    return {
+        "data": [package.__dict__ for package in package_list],
+        "total": total
+    }
+
 
 @app.get("/packages/{id}")
 def read_package(id: str):
