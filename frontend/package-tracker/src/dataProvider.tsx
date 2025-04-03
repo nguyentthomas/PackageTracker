@@ -23,13 +23,19 @@ const dataProvider: DataProvider = {
   },
 
   create: async (resource, params) => {
-    const url = `${apiUrl}/${resource}`;
-    const { json } = await httpClient(url, {
-      method: "POST",
-      body: JSON.stringify(params.data),
+    const response = await fetch(`${apiUrl}/${resource}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(params.data),
     });
-    return { data: json };
-  },
+
+    const json = await response.json();
+    if (!response.ok) throw new Error(json.detail || "Error creating resource");
+
+    return { data: json.data };  // ✅ Ensure `data` is returned properly
+},
 
   update: async (resource, params) => {
     const url = `${apiUrl}/${resource}/${params.id}`;

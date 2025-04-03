@@ -2,15 +2,11 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { List, Datagrid, TextField, EditButton, DeleteButton, SearchInput} from "react-admin";
 import React from "react";
 
-const filters = [
-  <SearchInput source="id" alwaysOn />,
-];
-
 export default function Packages() {
 
   return (
     <>
-      <List filters={filters}>
+      <List>
         <Datagrid rowClick="edit">
           <TextField source="id" label="ID" />
           <TextField source="recipient" label="Recipient" />
@@ -25,7 +21,6 @@ export default function Packages() {
           <EditButton/>
           <DeleteButton/>
         </Datagrid>
-
       </List>
     </>
   );

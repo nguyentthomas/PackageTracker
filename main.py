@@ -1,9 +1,8 @@
 from fastapi import FastAPI, status, HTTPException, Query, Depends, Body
 from database import engine, SessionLocal, Base
 from sqlalchemy.orm import Session
-from typing import List
-import schemas
-import models
+from typing import List, Union
+import models, schemas
 
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,6 +31,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 
 # Create the database
@@ -76,37 +76,20 @@ def read_package(id: str):
     session.close()
     return f"Package object with id: {package.id}"
 
-@app.post("/packages", status_code=status.HTTP_201_CREATED)  # previous called test
-def create_packages(packages: List[schemas.Packages]):
+@app.post("/packages", status_code=201)
+def create_packages(package: schemas.Packages, db: Session = Depends(get_db)):  
     try:
-        session = Session(bind=engine, expire_on_commit=False)
-
-        for package in packages:
-            package_db = models.Packages(
-                id=package.id,
-                recipient =package.recipient,
-                sender=package.sender,
-                trackingReference=package.trackingReference,
-                shippingMethod=package.shippingMethod,
-                deliveryType=package.deliveryType,
-                item=package.item,
-                status=package.status,
-                dateSent=package.dateSent,
-                note=package.note
-            )
-            session.add(package_db)
-
-        session.commit()
-        batchid = [package_db.id for package_db in packages]
-        session.close()
-
-        return {"message": f"Created Package items with id {batchid}"}
+        package_db = models.Packages(**package.dict())  
+        db.add(package_db)
+        db.commit()
+        db.refresh(package_db)  # ✅ This ensures we get the new `id`
+        
+        return {"data": {"id": package_db.id, **package.dict()}}  # ✅ Returns correct format for React Admin
 
     except Exception as e:
-        raise HTTPException(
-            status_code=400, detail=f"Error creating Package items: {str(e)}"
-        )
-
+        db.rollback()
+        raise HTTPException(status_code=400, detail=f"Error creating Package item: {str(e)}")
+    
 @app.put("/packages/{id}")
 def update_package(id: str, recipient: str, sender: str, trackingReference: str, deliveryType:str, item: str, shippingMethod: str, dateSent: str, status: str, note: str):
     # create a new database session
