@@ -3,6 +3,7 @@ from database import engine, SessionLocal, Base
 from sqlalchemy.orm import Session
 from typing import List, Union
 import models, schemas
+from uuid import UUID
 
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi.middleware.cors import CORSMiddleware
