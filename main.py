@@ -83,9 +83,9 @@ def create_packages(package: schemas.Packages, db: Session = Depends(get_db)):
         package_db = models.Packages(**package.dict())  
         db.add(package_db)
         db.commit()
-        db.refresh(package_db)  # ✅ This ensures we get the new `id`
+        db.refresh(package_db)
         
-        return {"data": {"id": package_db.id, **package.dict()}}  # ✅ Returns correct format for React Admin
+        return {"data": {"id": package_db.id, **package.dict()}}
 
     except Exception as e:
         db.rollback()
@@ -124,7 +124,7 @@ def update_package(id: str, recipient: str, sender: str, trackingReference: str,
     return package
 
 @app.delete("/packages/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_package(id: str):
+def delete_packages(package: schemas.Packages, db: Session = Depends(get_db)):  
     # create a new database session
     session = Session(bind=engine, expire_on_commit=False)
 

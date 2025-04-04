@@ -1,4 +1,5 @@
-import { fetchUtils, DataProvider, GetListParams, GetManyParams } from "react-admin";
+import { fetchUtils, DataProvider } from "react-admin";
+import { stringify } from 'query-string';
 
 const apiUrl = "http://localhost:8000";
 const httpClient = fetchUtils.fetchJson;
@@ -15,7 +16,7 @@ const dataProvider: DataProvider = {
       total: json.total,
     }
   },
-  
+
   getOne: async (resource, params) => {
     const url = `${apiUrl}/${resource}/${params.id}`;
     const { json } = await httpClient(url);
@@ -24,18 +25,18 @@ const dataProvider: DataProvider = {
 
   create: async (resource, params) => {
     const response = await fetch(`${apiUrl}/${resource}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(params.data),
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(params.data),
     });
 
     const json = await response.json();
     if (!response.ok) throw new Error(json.detail || "Error creating resource");
 
-    return { data: json.data };  // ✅ Ensure `data` is returned properly
-},
+    return { data: json.data };
+  },
 
   update: async (resource, params) => {
     const url = `${apiUrl}/${resource}/${params.id}`;
@@ -51,6 +52,18 @@ const dataProvider: DataProvider = {
     await httpClient(url, { method: "DELETE" });
     return { data: params.previousData };
   },
+
+  deleteMany: async (resource, params) => {
+    const query = {
+      filter: JSON.stringify({ id: params.ids }),
+    };
+    const url = `${apiUrl}/${resource}?${stringify(query)}`;
+    const { json } = await httpClient(url, {
+      method: 'DELETE',
+      body: JSON.stringify(params.data),
+    });
+    return { data: json };
+  }
 };
 
 
